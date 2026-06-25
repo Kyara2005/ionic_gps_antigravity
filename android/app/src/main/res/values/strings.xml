@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">gps-bg-app</string>
+    <string name="title_activity_main">gps-bg-app</string>
+    <string name="package_name">com.antigravity.gpsbgapp</string>
+    <string name="custom_url_scheme">com.antigravity.gpsbgapp</string>
+</resources>

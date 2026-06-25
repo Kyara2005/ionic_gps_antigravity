@@ -1,0 +1,210 @@
+<ion-header [translucent]="true">
+  <ion-toolbar class="main-toolbar">
+    <ion-title>Rastreador GPS Pro</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="main-content">
+  <div class="content-wrapper">
+    <!-- Error Message Alert -->
+    <div *ngIf="error" class="alert-card animate__animated animate__fadeIn">
+      <div class="alert-icon-container">
+        <ion-icon name="cellular-outline" class="alert-icon"></ion-icon>
+      </div>
+      <div class="alert-text-container">
+        <h3>Aviso del Sistema</h3>
+        <p>{{ error }}</p>
+      </div>
+    </div>
+
+    <!-- Status Header Card (Status & Pulse) -->
+    <ion-card class="status-card" [ngClass]="{'tracking-active': isTracking}">
+      <ion-card-content>
+        <div class="status-flex-container">
+          <div class="status-info">
+            <div class="badge-row">
+              <ion-badge [color]="isTracking ? 'success' : 'medium'" class="pulse-badge">
+                <span class="dot" *ngIf="isTracking"></span>
+                {{ isTracking ? 'ACTIVO' : 'INACTIVO' }}
+              </ion-badge>
+              <ion-badge [color]="isSimulated ? 'warning' : 'primary'" class="mode-badge">
+                <ion-icon [name]="isSimulated ? 'bug-outline' : 'shield-checkmark-outline'"></ion-icon>
+                {{ isSimulated ? 'Simulador Web' : 'GPS Nativo' }}
+              </ion-badge>
+            </div>
+            <h2>Rastreo de Ubicación</h2>
+            <p *ngIf="isTracking" class="status-subtitle">Registrando localizaciones en tiempo real...</p>
+            <p *ngIf="!isTracking" class="status-subtitle">El servicio de GPS está listo para iniciar.</p>
+          </div>
+
+          <div class="status-action">
+            <button class="action-btn" [ngClass]="{'active': isTracking}" (click)="toggleTracking()">
+              <ion-icon [name]="isTracking ? 'stop-outline' : 'play-outline'"></ion-icon>
+            </button>
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Configuration Panel -->
+    <ion-card class="config-card">
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon name="options-outline"></ion-icon>
+          Ajustes de GPS
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-grid class="ion-no-padding">
+          <ion-row>
+            <ion-col size="12" size-sm="6" class="config-col">
+              <ion-item lines="none" class="config-item">
+                <ion-label>
+                  <h3>Modo Simulado (Web)</h3>
+                  <p>Fuerza simulación de ruta en navegador</p>
+                </ion-label>
+                <ion-toggle slot="end" [checked]="isSimulated" (ionChange)="onSimulationToggle($event)"></ion-toggle>
+              </ion-item>
+            </ion-col>
+            <ion-col size="12" size-sm="6" class="config-col">
+              <ion-item lines="none" class="config-item">
+                <ion-label>
+                  <h3>Filtro de Distancia</h3>
+                  <p>Mínimo de metros para reportar</p>
+                </ion-label>
+                <ion-select slot="end" [(ngModel)]="distanceFilter" (ionChange)="onDistanceFilterChange()" interface="popover" class="custom-select">
+                  <ion-select-option [value]="2">2 metros</ion-select-option>
+                  <ion-select-option [value]="5">5 metros</ion-select-option>
+                  <ion-select-option [value]="10">10 metros</ion-select-option>
+                  <ion-select-option [value]="20">20 metros</ion-select-option>
+                  <ion-select-option [value]="50">50 metros</ion-select-option>
+                </ion-select>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Realtime Stats Grid -->
+    <ion-grid class="stats-grid ion-no-padding">
+      <ion-row>
+        <ion-col size="6" size-md="3">
+          <div class="stat-box">
+            <div class="stat-icon-container primary">
+              <ion-icon name="location-outline"></ion-icon>
+            </div>
+            <div class="stat-text">
+              <h3>{{ locations.length }}</h3>
+              <p>Total Puntos</p>
+            </div>
+          </div>
+        </ion-col>
+        <ion-col size="6" size-md="3">
+          <div class="stat-box">
+            <div class="stat-icon-container warning">
+              <ion-icon name="time-outline"></ion-icon>
+            </div>
+            <div class="stat-text">
+              <h3>{{ getBackgroundPointsCount() }}</h3>
+              <p>Segundo Plano</p>
+            </div>
+          </div>
+        </ion-col>
+        <ion-col size="6" size-md="3">
+          <div class="stat-box">
+            <div class="stat-icon-container success">
+              <ion-icon name="speedometer-outline"></ion-icon>
+            </div>
+            <div class="stat-text">
+              <h3>{{ locations.length > 0 ? (getCurrentSpeed() | number:'1.0-1') + ' km/h' : '0 km/h' }}</h3>
+              <p>Velocidad Act.</p>
+            </div>
+          </div>
+        </ion-col>
+        <ion-col size="6" size-md="3">
+          <div class="stat-box">
+            <div class="stat-icon-container secondary">
+              <ion-icon name="checkmark-circle-outline"></ion-icon>
+            </div>
+            <div class="stat-text">
+              <h3>{{ locations.length > 0 ? (getCurrentAccuracy() | number:'1.0-1') + 'm' : '--' }}</h3>
+              <p>Precisión GPS</p>
+            </div>
+          </div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+    <!-- Interactive Map Card -->
+    <ion-card class="map-card">
+      <div class="map-header">
+        <ion-icon name="location-outline"></ion-icon>
+        <h3>Mapa en Tiempo Real</h3>
+        <ion-badge color="success" class="live-dot-badge">Live Map</ion-badge>
+      </div>
+      <div class="map-body">
+        <div id="map-container"></div>
+      </div>
+    </ion-card>
+
+    <!-- Administrative Operations -->
+    <div class="operations-panel" *ngIf="locations.length > 0">
+      <ion-button fill="outline" color="primary" class="op-btn" (click)="exportLogs('json')">
+        <ion-icon slot="start" name="download-outline"></ion-icon>
+        Exportar JSON
+      </ion-button>
+      <ion-button fill="outline" color="primary" class="op-btn" (click)="exportLogs('csv')">
+        <ion-icon slot="start" name="download-outline"></ion-icon>
+        Exportar CSV
+      </ion-button>
+      <ion-button fill="solid" color="danger" class="op-btn clear-btn" (click)="clearLogs()">
+        <ion-icon slot="start" name="trash-outline"></ion-icon>
+        Limpiar Datos
+      </ion-button>
+    </div>
+
+    <!-- Location History Logs -->
+    <ion-card class="history-card">
+      <ion-card-header>
+        <ion-card-title>
+          Historial de Ubicaciones
+          <ion-badge color="medium" slot="end">{{ locations.length }} logs</ion-badge>
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content class="history-content">
+        <div class="empty-state" *ngIf="locations.length === 0">
+          <ion-icon name="location-outline" class="empty-icon"></ion-icon>
+          <h3>Sin ubicaciones registradas</h3>
+          <p>Inicia el rastreo para capturar datos geográficos.</p>
+        </div>
+
+        <ion-list *ngIf="locations.length > 0" class="log-list" lines="full">
+          <!-- Show newest coordinates on top by reversing array iteration in template -->
+          <ion-item *ngFor="let item of locations.slice().reverse(); let idx = index" class="log-item">
+            <!-- Left side state indicator -->
+            <div slot="start" class="log-indicator" [ngClass]="{'bg-state': item.isBackground}">
+              <ion-icon [name]="item.isBackground ? 'time-outline' : 'checkmark-circle-outline'"></ion-icon>
+            </div>
+            
+            <ion-label class="log-labels">
+              <div class="log-meta">
+                <span class="log-time">{{ item.timestamp | date:'HH:mm:ss' }}</span>
+                <ion-badge [color]="item.isBackground ? 'warning' : 'primary'" class="log-state-badge">
+                  {{ item.isBackground ? '2do Plano' : '1er Plano' }}
+                </ion-badge>
+                <ion-badge color="light" class="log-state-badge" *ngIf="item.isSimulated">Simulado</ion-badge>
+              </div>
+              <h2>Lat: {{ item.latitude | number:'1.6-6' }} | Lng: {{ item.longitude | number:'1.6-6' }}</h2>
+              <p>
+                Precisión: {{ item.accuracy | number:'1.1-1' }}m
+                <span *ngIf="item.altitude !== null"> | Alt: {{ item.altitude | number:'1.0-0' }}m</span>
+                <span *ngIf="item.speed !== null"> | Vel: {{ item.speed * 3.6 | number:'1.0-1' }} km/h</span>
+              </p>
+            </ion-label>
+          </ion-item>
+        </ion-list>
+      </ion-card-content>
+    </ion-card>
+  </div>
+</ion-content>

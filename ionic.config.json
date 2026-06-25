@@ -1,0 +1,7 @@
+{
+  "name": "gps-bg-app",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}
