@@ -1,6 +1,9 @@
 # Ionic GPS - Antigravity
 
 Aplicación desarrollada con Ionic + Angular y Capacitor para obtener la ubicación del dispositivo utilizando el servicio Antigravity GPS, permitiendo registrar coordenadas y realizar seguimiento de la ubicación en dispositivos Android.
+<p align="center">
+  <img width="30%" alt="icon" src="https://github.com/user-attachments/assets/5c6a04a1-95ef-434a-99f2-39a7e7eaf259" />
+</p>
 
 ## Ejecutar
 
@@ -57,8 +60,7 @@ La pantalla principal permite iniciar el seguimiento GPS y visualizar el estado 
 ## Solicitud de permisos
 
 <p align="center">
-  <img width="30%" src="URL_PERMISOS_1" />
-  <img width="30%" src="URL_PERMISOS_2" />
+  <img width="30%" src="https://github.com/user-attachments/assets/8658597b-c116-4bad-a270-4066fcbfae17" />
 </p>
 
 Durante el primer inicio, la aplicación solicita los permisos de ubicación necesarios para acceder al GPS del dispositivo.
