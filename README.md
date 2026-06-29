@@ -5,6 +5,14 @@ Aplicación desarrollada con Ionic + Angular y Capacitor para obtener la ubicaci
   <img width="30%" alt="icon" src="https://github.com/user-attachments/assets/5c6a04a1-95ef-434a-99f2-39a7e7eaf259" />
 </p>
 
+## Video demostrativo
+
+El video cuenta con una duración de 3 minutos y se encuentra subido en la red social de Tiktok:
+
+**Video:**
+https://vt.tiktok.com/ZSCDfdtyR/
+---
+
 ## Ejecutar
 
 ```bash
